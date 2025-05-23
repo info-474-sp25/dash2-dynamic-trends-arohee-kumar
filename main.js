@@ -10,14 +10,6 @@ const svg1_RENAME = d3.select("#lineChart1") // If you change this ID, you must 
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
-
-const svg2_RENAME = d3.select("#lineChart2")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
-
 // (If applicable) Tooltip element for interactivity
 // const tooltip = ...
 
@@ -41,24 +33,4 @@ d3.csv("aircraft_incidents.csv").then(data => {
 
     // 7.a: ADD INTERACTIVITY FOR CHART 1
     
-
-    // ==========================================
-    //         CHART 2 (if applicable)
-    // ==========================================
-
-    // 3.b: SET SCALES FOR CHART 2
-
-
-    // 4.b: PLOT DATA FOR CHART 2
-
-
-    // 5.b: ADD AXES FOR CHART 
-
-
-    // 6.b: ADD LABELS FOR CHART 2
-
-
-    // 7.b: ADD INTERACTIVITY FOR CHART 2
-
-
 });
