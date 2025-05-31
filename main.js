@@ -15,6 +15,16 @@ const svg1 = d3.select("#lineChart1") // If you change this ID, you must change 
 
 // (If applicable) Tooltip element for interactivity
 // const tooltip = ...
+ const tooltip = d3.select("body") // Create tooltip
+        .append("div")
+        .attr("class", "tooltip")
+        .style("position", "absolute")
+        .style("visibility", "hidden")
+        .style("background", "rgba(0, 0, 0, 0.7)")
+        .style("color", "white")
+        .style("padding", "10px")
+        .style("border-radius", "5px")
+        .style("font-size", "12px");
 
 // 2.a: LOAD...
 d3.csv("aircraft_incidents.csv").then(data => {
@@ -51,28 +61,29 @@ d3.csv("aircraft_incidents.csv").then(data => {
       .domain(Array.from(categories.keys()))
       .range(d3.schemeTableau10);
 
-
+    const flattenedData = [];
+    categories.forEach((yearMap, category) => {
+        yearMap.forEach((count, year) => {
+            flattenedData.push({ year, count, category });
+        });
+    });
+    filteredFlattenedData = flattenedData.filter(d => d.category === "Fatal");
+    console.log(filteredFlattenedData)
     // 4.a: PLOT DATA FOR CHART 1
-    const line = d3.line()
-      .x(d => xScale(d.year))
-      .y(d => yScale(d.count));
 
-    const dataArray = Array.from(categories.entries());
-
-    svg1.selectAll("path")
-      .data(dataArray)
+    svg1.selectAll("path.data-line")
+      .data([filteredFlattenedData]) // Bind the filtered data as a single line
       .enter()
       .append("path")
-      .attr("d", d => {
-        const yearMap = d[1];
-        const values = Array.from(yearMap.entries())
-            .map(([year, count]) => ({ year, count }))
-            .sort((a, b) => a.year - b.year); //https://stackoverflow.com/questions/26067081/date-sorting-with-d3-js
-        return line(values); 
-      })
-      .style("stroke", d => colorScale(d[0])) 
+      .attr("class", "data-line")
+      .attr("d", d3.line()
+          .x(d => xScale(d.year))
+          .y(d => yScale(d.count))
+      )
+      .style("stroke", "steelblue")
       .style("fill", "none")
       .style("stroke-width", 2);
+
     
     // 5.a: ADD AXES FOR CHART 1
     svg1.append("g")
@@ -119,6 +130,90 @@ d3.csv("aircraft_incidents.csv").then(data => {
       .style("alignment-baseline", "middle")
       .text(d => d[0]); 
 
-    // 7.a: ADD INTERACTIVITY FOR CHART 1
     
+
+    
+    svg1.selectAll(".data-point") // Create tooltip events
+        .data(filteredFlattenedData) // Bind only the filtered STEM data
+        // .data([selectedCategoryData]) // D7: Bind only to category selected by dropdown menu
+        .enter()
+        .append("circle")
+        .attr("class", "data-point")
+        .attr("cx", d => xScale(d.year))
+        .attr("cy", d => yScale(d.count))
+        .attr("r", 5)
+        .style("fill", "steelblue")
+        .style("opacity", 0)  // Make circles invisible by default
+        .on("mouseover", function(event, d) {
+            tooltip.style("visibility", "visible")
+                .html(`<strong>Year:</strong> ${d.year} <br><strong>Incidents:</strong> ${d.count}`)
+                .style("top", (event.pageY + 10) + "px") // Position relative to pointer
+                .style("left", (event.pageX + 10) + "px");
+
+            // Make the hovered circle visible
+            d3.select(this).style("opacity", 1);  // Set opacity to 1 on hover
+
+            // Create the large circle at the hovered point
+            svg1.append("circle")
+                .attr("class", "hover-circle")
+                .attr("cx", xScale(d.year))  // Position based on the xScale (year)
+                .attr("cy", yScale(d.count)) // Position based on the yScale (count)
+                .attr("r", 6)  // Radius of the large circle
+                .style("fill", "steelblue") // Circle color
+                .style("stroke-width", 2);
+        })
+        .on("mousemove", function(event) {
+            tooltip.style("top", (event.pageY + 10) + "px")
+                .style("left", (event.pageX + 10) + "px");
+        })
+        .on("mouseout", function() {
+            tooltip.style("visibility", "hidden");
+
+            // Remove the hover circle when mouseout occurs
+            svg1.selectAll(".hover-circle").remove();
+
+            // Make the circle invisible again
+            d3.select(this).style("opacity", 0);  // Reset opacity to 0 when not hovering
+        });
+
+
+
+
+
+    // 7.a: ADD INTERACTIVITY FOR CHART 1
+    function updateChart(selectedCategory) {
+        // D3.2: Filter the data based on the selected category
+        var selectedCategoryData = flattenedData.filter(function(d) {
+            return d.category === selectedCategory;
+        }).sort((a, b) => a.year - b.year);
+
+        // .3: Remove existing lines
+        // D3.3: Remove existing lines
+        svg1.selectAll("path.data-line").remove();
+        svg1.selectAll(".data-point").remove();
+
+        // .4: Redraw lines
+        // D3.4: Redraw line based on selected category data
+        svg1.selectAll("path.data-line")
+            .data([selectedCategoryData])
+            .enter()
+            .append("path")
+            .attr("class", "data-line")
+            .attr("d", d3.line()
+                .x(d => xScale(d.year))
+                .y(d => yScale(d.count))
+            )
+            .style("stroke", colorScale(selectedCategory))
+            .style("fill", "none")
+            .style("stroke-width", 2);
+
+      }
+
+    updateChart("Fatal");
+    // 5: EVENT LISTENERS
+    d3.select("#categorySelect").on("change", function() {
+        var selectedCategory = d3.select(this).property("value");
+        updateChart(selectedCategory); // Update the chart based on the selected option
+    });  
+
 });

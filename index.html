@@ -18,16 +18,24 @@
     
     <!-- INTERACTIVE WIDGETS -->
     <div class="item horizontal-container">
-        <div class="item"><!-- Your widget 1 code goes here. -->
-            <!-- Widget 1 title -->
-            <!-- Widget 1 element -->
+<!--         
+        <div class = "widget">
+          <label for="trendline-toggle">Show Trendline</label>
+          <input type="checkbox" id = "trendline-toggle">
+        </div> -->
+
+        <div class="widget">
+            <label for="categorySelect">Select Severity type:</label>
+            <div class="select-container">
+                <select id="categorySelect">
+                    <option value="Non-Fatal">Non-Fatal</option>
+                    <option value="Incident">Incident</option>
+                    <option value="Fatal">Fatal</option>
+                    <option value="Unavailable">Unavailable</option>
+                </select>                    
+            </div>
         </div>
 
-        <!-- DELETE THE FOLLOWING DIV IF YOU ONLY HAVE 1 WIDGET. -->
-        <div class="item"><!-- Your widget 2 code goes here. -->
-            <!-- Widget 2 title -->
-            <!-- Widget 2 element -->
-        </div>
     </div>
 
     <!-- CHART(S) -->
