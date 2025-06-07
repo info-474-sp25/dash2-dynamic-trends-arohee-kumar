@@ -10,7 +10,14 @@ body {
     padding: 20px;
     background-color: #f4f4f4;
 }
-
+.checkbox-container{
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 30px;
+  padding: 10px 0;
+}
 /* Vertical Container Layout */
 .vertical-container {
     display: flex;
